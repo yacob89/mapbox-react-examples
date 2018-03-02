@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "mapbox-gl": "^0.39.1",
+    "material-ui": "^0.20.0",
     "react": "^15.5.0",
     "react-dom": "^15.5.0"
   }
