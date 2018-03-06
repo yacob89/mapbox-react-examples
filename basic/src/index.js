@@ -7,7 +7,7 @@ mapboxgl.accessToken = 'pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4M29iazA2Z2gycXA4N2pmb
 
 class Application extends React.Component {
 
-  constructor(props : Props) {
+  constructor(props) {
     super(props);
     this.state = {
       lng: 5,
