@@ -26,6 +26,9 @@ class Application extends React.Component {
       center: [-71.97722138410576, -13.517379300798098]
     });
 
+    // Add Drone Layer
+    var url = 'https://wanderdrone.appspot.com/';
+
     map.on('load', function() {
       addLayer();
       //alert("Load Selesai!");
@@ -217,6 +220,25 @@ class Application extends React.Component {
         }
       });
 
+      // Add Drone layer
+      window.setInterval(function () {
+        map.getSource('drone').setData(url);
+      }, 2000);
+
+      map.addSource('drone', {
+        type: 'geojson',
+        data: url
+      });
+      map.addLayer({
+        "id": "drone",
+        "type": "symbol",
+        "source": "drone",
+        "layout": {
+          "icon-image": "rocket-15"
+        }
+      });
+
+
       // When a click event occurs on a feature in the places layer, open a popup at the
       // location of the feature, with description HTML from its properties.
       map.on('click', 'places', function(e) {
@@ -262,7 +284,7 @@ class Application extends React.Component {
       });
     }
 
-    var toggleableLayerIds = ['contours', 'museums', 'places', 'states-layer'];
+    var toggleableLayerIds = ['contours', 'museums', 'places', 'states-layer', 'drone'];
 
     for (var i = 0; i < toggleableLayerIds.length; i++) {
       var id = toggleableLayerIds[i];
