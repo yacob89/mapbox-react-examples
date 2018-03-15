@@ -2,8 +2,12 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 import mapboxgl from 'mapbox-gl'
 import './index.css';
+import '@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css'
+import { greatCircle, point } from '@turf/turf';
+//import 'https://api.tiles.mapbox.com/mapbox.js/plugins/turf/v3.0.11/turf.min.js'
 
 mapboxgl.accessToken = 'pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4M29iazA2Z2gycXA4N2pmbDZmangifQ.-g_vE53SD2WrJ6tFX7QHmA';
+//mapboxgl.accessToken = 'pk.eyJ1IjoieWFjb2I4OSIsImEiOiJjamU3dTYxOXEwMzIwMnFteHB5MGYzbzZmIn0._u0BoH4XBwpB7EaYN8Xb2g';
 
 class Application extends React.Component {
 
@@ -16,9 +20,32 @@ class Application extends React.Component {
     };
   }
 
+  handleClick() {
+    /*var AWS = require('aws-sdk');
+    var MapboxClient = require('mapbox');
+    var mapboxClient = new MapboxClient(mapboxgl.accessToken);
+    mapboxClient.createUploadCredentials(function (err, credentials) {
+      console.log(credentials);
+    });*/
+
+    /*mapboxClient.retrieveToken('ACCESSTOKEN', function(err, tokenResponse) {
+      console.log(tokenResponse);
+    });*/
+
+    console.log('this is:', this);
+  }
+
   componentDidMount() {
     const {lng, lat, zoom} = this.state;
 
+    // Turf declaration
+    const fs = require('fs');
+    const turf = require('turf');
+    const D3Dsv = require('d3-dsv');
+    const mapboxgl = require('mapbox-gl');
+    const MapboxDraw = require('@mapbox/mapbox-gl-draw');
+
+    // Map declaration - mapbox
     const map = new mapboxgl.Map({
       container: this.mapContainer,
       style: 'mapbox://styles/mapbox/basic-v9',
@@ -26,7 +53,22 @@ class Application extends React.Component {
       center: [-71.97722138410576, -13.517379300798098]
     });
 
-    // Add Drone Layer
+    // Add MapboxDraw Control (Draw Polygon on map)
+    
+    var draw = new MapboxDraw({
+      displayControlsDefault: false,
+      controls: {
+        polygon: true,
+        trash: true
+      }
+    });
+    map.addControl(draw);
+
+    map.on('draw.create', updateArea);
+    map.on('draw.delete', updateArea);
+    map.on('draw.update', updateArea);
+
+    // Add Drone Layer URL
     var url = 'https://wanderdrone.appspot.com/';
 
     map.on('load', function() {
@@ -53,11 +95,31 @@ class Application extends React.Component {
       document.getElementById(layerId).checked = true;
     }
 
+    function removeControl(){
+      map.removeControl();
+    }
+
     for (var i = 0; i < inputs.length; i++) {
       inputs[i].onclick = switchLayer;
     }
 
-    // Add Layer example
+    // This is Polygon Drawing Function
+    
+    function updateArea(e) {
+      var data = draw.getAll();
+      var answer = document.getElementById('calculated-area');
+      if (data.features.length > 0) {
+        var area = turf.area(data);
+        // restrict to area to 2 decimal points
+        var rounded_area = Math.round(area * 100) / 100;
+        answer.innerHTML = '<p><strong>' + rounded_area + '</strong></p><p>square meters</p>';
+      } else {
+        answer.innerHTML = '';
+        if (e.type !== 'draw.delete') alert("Use the draw tools to draw a polygon!");
+      }
+    }
+
+    // Add Various Layers example on Mapbox examples
 
     function addLayer() {
       map.addSource('museums', {
@@ -320,6 +382,10 @@ class Application extends React.Component {
 
     return (<div>
       <div className="inline-block absolute top left mt12 ml12 bg-darken75 color-white z1 py6 px12 round-full txt-s txt-bold">
+      <div class='calculation-box'>
+          <p>Draw a polygon using the draw tools.</p>
+          <div id='calculated-area'>adf</div>
+        </div>
         <div>
           <label id='title'>Contoh Map</label>
         </div>
@@ -339,9 +405,14 @@ class Application extends React.Component {
           <label for='satellite'>satellite</label>
         </div>
         <div id='layers'></div>
+        <button onClick={(e) => this.handleClick(e)}>
+        Click me
+      </button>
       </div>
+      
       <div ref={el => this.mapContainer = el} className="absolute top right left bottom"/>
-    </div>);
+    </div>
+  );
   }
 }
 

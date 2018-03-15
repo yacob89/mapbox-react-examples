@@ -8,11 +8,18 @@
     "react-scripts": "^1.0.10"
   },
   "dependencies": {
+    "@mapbox/mapbox-gl-draw": "^1.0.6",
+    "@turf/turf": "^5.1.6",
+    "aws-sdk": "^2.208.0",
+    "d3-dsv": "^1.0.8",
+    "mapbox": "^1.0.0-beta9",
     "mapbox-gl": "^0.39.1",
     "material-ui": "^0.20.0",
+    "npm": "^5.7.1",
     "react": "^15.5.0",
     "react-dom": "^15.5.0",
     "react-popup": "^0.9.2",
-    "reactjs-popup": "^1.0.3"
+    "reactjs-popup": "^1.0.3",
+    "turf": "^3.0.14"
   }
 }
