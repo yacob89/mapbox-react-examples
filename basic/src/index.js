@@ -4,10 +4,9 @@ import mapboxgl from 'mapbox-gl'
 import './index.css';
 import '@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css'
 import { greatCircle, point } from '@turf/turf';
-//import 'https://api.tiles.mapbox.com/mapbox.js/plugins/turf/v3.0.11/turf.min.js'
 
-mapboxgl.accessToken = 'pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4M29iazA2Z2gycXA4N2pmbDZmangifQ.-g_vE53SD2WrJ6tFX7QHmA';
-//mapboxgl.accessToken = 'pk.eyJ1IjoieWFjb2I4OSIsImEiOiJjamU3dTYxOXEwMzIwMnFteHB5MGYzbzZmIn0._u0BoH4XBwpB7EaYN8Xb2g';
+//mapboxgl.accessToken = 'pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4M29iazA2Z2gycXA4N2pmbDZmangifQ.-g_vE53SD2WrJ6tFX7QHmA';
+mapboxgl.accessToken = 'pk.eyJ1IjoieWFjb2I4OSIsImEiOiJjamU3dTYxOXEwMzIwMnFteHB5MGYzbzZmIn0._u0BoH4XBwpB7EaYN8Xb2g';
 
 class Application extends React.Component {
 
@@ -20,17 +19,59 @@ class Application extends React.Component {
     };
   }
 
+  // Testing Mapbox Upload API by pressing Click Me
   handleClick() {
-    /*var AWS = require('aws-sdk');
+    // Upload API declaration
     var MapboxClient = require('mapbox');
-    var mapboxClient = new MapboxClient(mapboxgl.accessToken);
-    mapboxClient.createUploadCredentials(function (err, credentials) {
-      console.log(credentials);
-    });*/
 
-    /*mapboxClient.retrieveToken('ACCESSTOKEN', function(err, tokenResponse) {
-      console.log(tokenResponse);
-    });*/
+    var userName = "yacob89";
+    // Get Secret Token API --> Mapbox account settings create new token & specify scopes
+    var accessToken = 'sk.eyJ1IjoieWFjb2I4OSIsImEiOiJjamV0Zzk3cW8yam1iMzNxbTB1eGM4bXNuIn0.r4zYZk2IVvZ7k6Il3G0T3w';
+    const fs = require('fs');
+    var client = new MapboxClient(accessToken);
+
+    // The first step is to connect to MapBox to provision some temporary access credentials to Amazon's S3
+    client.createUploadCredentials(function (err, credentials) {
+      console.log(credentials);
+
+      // Use aws-sdk to stage the file on Amazon S3
+      var AWS = require('aws-sdk');
+      /*var s3 = new AWS.S3({
+        accessKeyId: credentials.accessKeyId,
+        secretAccessKey: credentials.secretAccessKey,
+        sessionToken: credentials.sessionToken,
+        region: 'us-east-1'
+      });
+
+      function uploadComplete(err, upload) {
+        if (err) {
+          console.log("An error occured creating upload: " + err);
+        }
+
+        console.log(upload);
+      }
+
+      function putComplete(err, resp) {
+        if (err) {
+          return console.log("Error uploading file");
+        }
+
+        console.log("Instructing MapBox to create TilSet...");
+
+        // Create Vector TileSet
+        client.createUpload({
+          tileset: [userName, tilesetName].join('.'),
+          url: credentials.url
+        }, uploadComplete);
+      }
+
+      // Upload data to S3
+      s3.putObject({
+        Bucket: credentials.bucket,
+        Key: credentials.key,
+        Body: fs.createReadStream(fileName)
+      }, putComplete);*/
+    });
 
     console.log('this is:', this);
   }
@@ -39,7 +80,6 @@ class Application extends React.Component {
     const {lng, lat, zoom} = this.state;
 
     // Turf declaration
-    const fs = require('fs');
     const turf = require('turf');
     const D3Dsv = require('d3-dsv');
     const mapboxgl = require('mapbox-gl');
@@ -89,22 +129,19 @@ class Application extends React.Component {
     var inputs = layerList.getElementsByTagName('input');
     var labels = document.getElementById('title');
 
+    // Switch Style Function
     function switchLayer(layer) {
       var layerId = layer.target.id;
       map.setStyle('mapbox://styles/mapbox/' + layerId + '-v9');
       document.getElementById(layerId).checked = true;
     }
 
-    function removeControl(){
-      map.removeControl();
-    }
-
     for (var i = 0; i < inputs.length; i++) {
+      // add event listener to each radio button
       inputs[i].onclick = switchLayer;
     }
 
     // This is Polygon Drawing Function
-    
     function updateArea(e) {
       var data = draw.getAll();
       var answer = document.getElementById('calculated-area');
@@ -120,7 +157,6 @@ class Application extends React.Component {
     }
 
     // Add Various Layers example on Mapbox examples
-
     function addLayer() {
       map.addSource('museums', {
         type: 'vector',
@@ -346,8 +382,8 @@ class Application extends React.Component {
       });
     }
 
+    // Toggle Layers Visibility
     var toggleableLayerIds = ['contours', 'museums', 'places', 'states-layer', 'drone'];
-
     for (var i = 0; i < toggleableLayerIds.length; i++) {
       var id = toggleableLayerIds[i];
 
